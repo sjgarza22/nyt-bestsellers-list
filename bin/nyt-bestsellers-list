@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
-# require "bundler/setup"
-# require "nyt_bestsellers_list"
+require "bundler/setup"
+require "nyt_bestsellers_list"
 
 require './lib/nyt_bestsellers_list'
 
