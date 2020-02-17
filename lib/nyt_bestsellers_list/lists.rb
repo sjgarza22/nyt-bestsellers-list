@@ -11,46 +11,32 @@ class NytBestsellersList::Lists
     end
 
     def add_book=(book)
-    
         @book_list << book
-    
     end
 
     def save
         @@all << self
     end
 
-    def self.current_lists
-
-        self.scrape_lists
-
+    def self.all
         @@all
+    end
 
+    def self.current_lists
+        self.scrape_lists
+        @@all
     end
 
     def self.scrape_lists
         doc = Nokogiri::HTML(open(MAIN_URL))
-        @list_urls = doc.css("a.css-nzgijy").map {|link| "https://www.nytimes.com#{link['href']}"}
+        @list_urls = []
+        doc.css("a.css-nzgijy").each {|link| @list_urls << "https://www.nytimes.com#{link['href']}"}
             @list_urls.each do |url|
                 list_doc = Nokogiri::HTML(open(url))
-                @list = self.new(list_doc.search("h1").first.text.strip)
+                @list = self.new(list_doc.at_css("h1").children.first.text.strip)
 
                 data = list_doc.search("article.css-1u6k25n").each do |d|
-                    book = Book.new(d.search("h3").text.strip)
-                    count = 0
-                    d.search("p").each do |content|
-                        case count
-                        when 1
-                            author = Author.new(content.text.strip)
-                            book.author = author
-                        when 2
-                            book.publisher = content.text.strip
-                        when 3
-                            book.summary = content.text.strip
-                        end
-
-                        count += 1
-                    end
+                    book = Book.find_or_create_by_doc(d)
                     @list.add_book = book
                 end
             end
@@ -66,9 +52,11 @@ class NytBestsellersList::Lists
     end
 
     def self.print_list(num)
+        self.all[num.to_i - 1].print  
+    end
 
-        @@all[num].print
-    
+    def self.print_list_names
+        self.all.each_with_index {|list, index| puts "#{index + 1}. #{list.name}"}
     end
 
 end
