@@ -1,6 +1,7 @@
 class NytBestsellersList::Lists
 
-    attr_accessor :name
+    attr_accessor :name, :url
+    MAIN_URL = 'https://www.nytimes.com/books/best-sellers/'
     @@all = []
 
     def initialize(name)
@@ -9,7 +10,7 @@ class NytBestsellersList::Lists
         save
     end
 
-    def add_book(book)
+    def add_book=(book)
     
         @book_list << book
     
@@ -21,31 +22,45 @@ class NytBestsellersList::Lists
 
     def self.current_lists
 
-        fiction_list = self.new("Fiction List")
-        author_1 = Author.new("J.K. Rowling")
-        book_1 = Book.new("Harry Potter and the Sorcerer's Stone", author_1, "blah, blah, blah, magic!")
-        fiction_list.add_book(book_1)
-        author_2 = Author.new("Stephen King")
-        book_2 = Book.new("The Outsider", author_2, "blah, blah, blah, shudder!")
-        fiction_list.add_book(book_2)
-
-        nonfiction_list = self.new("Nonfiction List")
-        nonfiction_list.add_book(book_1)
-        nonfiction_list.add_book(book_2)
-
-        childrens_list = self.new("Children's List")
-        childrens_list.add_book(book_1)
-        childrens_list.add_book(book_2)
+        self.scrape_lists
 
         @@all
 
+    end
+
+    def self.scrape_lists
+        doc = Nokogiri::HTML(open(MAIN_URL))
+        @list_urls = doc.css("a.css-nzgijy").map {|link| "https://www.nytimes.com#{link['href']}"}
+            @list_urls.each do |url|
+                list_doc = Nokogiri::HTML(open(url))
+                @list = self.new(list_doc.search("h1").first.text.strip)
+
+                data = list_doc.search("article.css-1u6k25n").each do |d|
+                    book = Book.new(d.search("h3").text.strip)
+                    count = 0
+                    d.search("p").each do |content|
+                        case count
+                        when 1
+                            author = Author.new(content.text.strip)
+                            book.author = author
+                        when 2
+                            book.publisher = content.text.strip
+                        when 3
+                            book.summary = content.text.strip
+                        end
+
+                        count += 1
+                    end
+                    @list.add_book = book
+                end
+            end
     end
 
     def print
         @book_list.each do |book|
             puts book.title
             puts book.author.name
-            puts book.summary + "\n"
+            puts book.summary + "\n\n"
 
         end
     end

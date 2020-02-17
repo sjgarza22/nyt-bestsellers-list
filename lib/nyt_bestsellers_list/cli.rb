@@ -51,9 +51,9 @@ class NytBestsellersList::CLI
             when "1"
                 @list.print_list(0)
             when "2"
-                @list.print_list(0)
+                @list.print_list(1)
             when "3"
-                @list.print_list(0)
+                @list.print_list(2)
             when "0"
                 main_menu
         end
@@ -73,13 +73,13 @@ class NytBestsellersList::CLI
             input = gets.strip
             case input
                 when "1"
-                    @list.print_list(1)
+                    @list.print_list(3)
                 when "2"
-                    @list.print_list(1)
+                    @list.print_list(4)
                 when "3"
-                    @list.print_list(1)
+                    @list.print_list(5)
                 when "4"
-                    @list.print_list(1)
+                    @list.print_list(6)
                 when "0"
                     main_menu
             end
@@ -100,13 +100,13 @@ class NytBestsellersList::CLI
         input = gets.strip
         case input
                 when "1"
-                    @list.print_list(2)
+                    @list.print_list(7)
                 when "2"
-                    @list.print_list(2)
+                    @list.print_list(8)
                 when "3"
-                    @list.print_list(2)
+                    @list.print_list(9)
                 when "4"
-                    @list.print_list(2)
+                    @list.print_list(10)
                 when "0"
                     main_menu
         end
